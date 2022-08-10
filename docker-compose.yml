@@ -1,0 +1,22 @@
+version: '2'
+
+services:
+  db:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql
+    profiles: ["db-only"]
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+  app:
+    build: .
+    ports:
+      - 8000:8000
+    links:
+      - db
+volumes:
+  postgres:

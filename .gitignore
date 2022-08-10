@@ -1,0 +1,4 @@
+/target
+/postgres
+.env
+/.cargo/config.toml
