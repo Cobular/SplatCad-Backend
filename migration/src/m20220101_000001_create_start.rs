@@ -75,6 +75,7 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Commits::ProjectId).integer().not_null())
                     .col(ColumnDef::new(Commits::Description).string())
                     .col(ColumnDef::new(Commits::CreatedBy).integer().not_null())
+                    .col(ColumnDef::new(Commits::CommitNumber).integer().not_null())
                     .col(
                         ColumnDef::new(Commits::CreatedAt)
                             .timestamp_with_time_zone()
@@ -111,7 +112,7 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Files::Name).string().not_null())
-                    .col(ColumnDef::new(Files::Type).string())
+                    .col(ColumnDef::new(Files::FileType).string())
                     .col(
                         ColumnDef::new(Files::CreatedAt)
                             .timestamp_with_time_zone()
@@ -119,7 +120,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Files::CreatedBy).integer().not_null())
                     .col(ColumnDef::new(Files::CheckedOutStatus).boolean().not_null())
-                    .col(ColumnDef::new(Files::CheckedOutBy).integer().not_null())
+                    .col(ColumnDef::new(Files::CheckedOutBy).integer())
                     .col(ColumnDef::new(Files::ProjectId).integer().not_null())
                     .foreign_key(
                         ForeignKey::create()
@@ -192,44 +193,10 @@ impl MigrationTrait for Migration {
                     .to_owned(),
             )
             .await?;
-
-        manager
-            .create_table(
-                Table::create()
-                    .table(UserProjects::Table)
-                    .if_not_exists()
-                    .col(ColumnDef::new(UserProjects::UserId).integer().not_null())
-                    .col(ColumnDef::new(UserProjects::ProjectId).integer().not_null())
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("FK_USER_PROJECTS_USER_ID")
-                            .from(UserProjects::Table, UserProjects::UserId)
-                            .to(Users::Table, Users::Id)
-                            .on_delete(ForeignKeyAction::Cascade),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("FK_USER_PROJECTS_PROJECT_ID")
-                            .from(UserProjects::Table, UserProjects::ProjectId)
-                            .to(Projects::Table, Projects::Id)
-                            .on_delete(ForeignKeyAction::Cascade),
-                    )
-                    .primary_key(
-                        Index::create()
-                            .name("PK_USER_PROJECTS")
-                            .col(UserProjects::UserId)
-                            .col(UserProjects::ProjectId),
-                    )
-                    .to_owned(),
-            )
-            .await?;
         Ok(())
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
-        manager
-            .drop_table(Table::drop().table(UserProjects::Table).to_owned())
-            .await?;
         manager
             .drop_table(Table::drop().table(Versions::Table).to_owned())
             .await?;
@@ -259,14 +226,6 @@ enum Users {
     CreatedAt,
 }
 
-/// Mapping of Users to Projects
-#[derive(Iden)]
-enum UserProjects {
-    Table,
-    UserId,
-    ProjectId,
-}
-
 /// Projects - A collection of commits, which each contain versions which contain files.
 /// Also contains a list of files for easier lookup.
 #[derive(Iden)]
@@ -288,6 +247,7 @@ enum Commits {
     CreatedAt,
     CreatedBy,
     ProjectId,
+    CommitNumber
 }
 
 /// A set of versions of files.
@@ -314,7 +274,7 @@ enum Files {
     Name,
     CreatedBy,
     CreatedAt,
-    Type,
+    FileType,
     CheckedOutStatus,
     CheckedOutBy,
 

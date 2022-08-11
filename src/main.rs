@@ -18,7 +18,7 @@ mod routes;
 use pool::Db;
 
 use routes::debug::user_id;
-use routes::project::{create, read_one, read_all_for_user};
+use routes::project::{create, read_one, read_all_for_user, get_files_for_project, get_commits_for_project};
 
 
 async fn run_migrations(rocket: Rocket<Build>) -> fairing::Result {
@@ -33,5 +33,5 @@ fn rocket() -> _ {
         .attach(Db::init())
         .attach(AdHoc::try_on_ignite("Migrations", run_migrations))
         .mount("/debug", routes![user_id])
-        .mount("/project", routes![create, read_one, read_all_for_user])
+        .mount("/project", routes![create, read_one, read_all_for_user, get_files_for_project, get_commits_for_project])
 }

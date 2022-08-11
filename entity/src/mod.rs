@@ -5,6 +5,5 @@ pub mod prelude;
 pub mod commits;
 pub mod files;
 pub mod projects;
-pub mod user_projects;
 pub mod users;
 pub mod versions;

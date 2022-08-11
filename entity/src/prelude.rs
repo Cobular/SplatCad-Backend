@@ -3,6 +3,5 @@
 pub use super::commits::Entity as Commits;
 pub use super::files::Entity as Files;
 pub use super::projects::Entity as Projects;
-pub use super::user_projects::Entity as UserProjects;
 pub use super::users::Entity as Users;
 pub use super::versions::Entity as Versions;

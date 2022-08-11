@@ -20,8 +20,6 @@ pub enum Relation {
     Versions,
     #[sea_orm(has_many = "super::projects::Entity")]
     Projects,
-    #[sea_orm(has_many = "super::user_projects::Entity")]
-    UserProjects,
 }
 
 impl Related<super::commits::Entity> for Entity {
@@ -39,12 +37,6 @@ impl Related<super::versions::Entity> for Entity {
 impl Related<super::projects::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Projects.def()
-    }
-}
-
-impl Related<super::user_projects::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::UserProjects.def()
     }
 }
 

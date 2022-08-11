@@ -12,7 +12,7 @@ pub struct Model {
     pub name: String,
     pub description: Option<String>,
     pub created_by: i32,
-    pub enforce_checkouts: Option<bool>,
+    pub enforce_checkouts: bool,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
@@ -29,8 +29,6 @@ pub enum Relation {
     Commits,
     #[sea_orm(has_many = "super::files::Entity")]
     Files,
-    #[sea_orm(has_many = "super::user_projects::Entity")]
-    UserProjects,
 }
 
 impl Related<super::users::Entity> for Entity {
@@ -48,12 +46,6 @@ impl Related<super::commits::Entity> for Entity {
 impl Related<super::files::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Files.def()
-    }
-}
-
-impl Related<super::user_projects::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::UserProjects.def()
     }
 }
 

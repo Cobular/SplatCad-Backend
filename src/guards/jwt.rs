@@ -7,7 +7,6 @@ use rocket::{
     Config, Request,
 };
 use sea_orm::{EntityTrait};
-use sea_orm::ActiveModelTrait;
 
 use sea_orm_rocket::Connection;
 use serde::{Deserialize, Serialize};

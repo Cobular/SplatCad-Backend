@@ -11,6 +11,7 @@ pub struct Model {
     pub description: Option<String>,
     pub created_by: i32,
     pub created_at: DateTimeWithTimeZone,
+    pub commit_number: i32,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
