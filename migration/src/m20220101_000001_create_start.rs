@@ -24,36 +24,64 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
-        manager
-            .create_table(
-                Table::create()
-                    .table(Projects::Table)
-                    .if_not_exists()
-                    .col(
-                        ColumnDef::new(Projects::Id)
-                            .integer()
-                            .not_null()
-                            .auto_increment()
-                            .primary_key(),
+            manager
+                .create_table(
+                    Table::create()
+                        .table(Projects::Table)
+                        .if_not_exists()
+                        .col(
+                            ColumnDef::new(Projects::Id)
+                                .integer()
+                                .not_null()
+                                .auto_increment()
+                                .primary_key(),
+                        )
+                        .col(ColumnDef::new(Projects::Name).string().not_null())
+                        .col(ColumnDef::new(Projects::Description).string())
+                        .col(ColumnDef::new(Projects::CreatedBy).integer().not_null())
+                        .col(
+                            ColumnDef::new(Projects::EnforceCheckouts)
+                                .boolean()
+                                .default(false),
+                        )
+                        .foreign_key(
+                            ForeignKey::create()
+                                .name("FK_USER_PROJECT_CREATED_BY")
+                                .from(Projects::Table, Projects::CreatedBy)
+                                .to(Users::Table, Users::Id)
+                                .on_delete(ForeignKeyAction::Cascade),
+                        )
+                        .to_owned(),
+                )
+                .await?;
+
+                manager
+                    .create_table(
+                        Table::create()
+                            .table(Commits::Table)
+                            .if_not_exists()
+                            .col(
+                                ColumnDef::new(Commits::Id)
+                                    .integer()
+                                    .not_null()
+                                    .auto_increment()
+                                    .primary_key(),
+                            )
+                            .col(ColumnDef::new(Commits::Description).string())
+                            .col(ColumnDef::new(Commits::CreatedBy).integer().not_null())
+                            .col(
+                                ColumnDef::new(Commits::CreatedAt).date_time().not_null(),
+                            )
+                            .foreign_key(
+                                ForeignKey::create()
+                                    .name("FK_COMMIT_CREATED_BY")
+                                    .from(Commits::Table, Commits::CreatedBy)
+                                    .to(Users::Table, Users::Id)
+                                    .on_delete(ForeignKeyAction::Cascade),
+                            )
+                            .to_owned(),
                     )
-                    .col(ColumnDef::new(Projects::Name).string().not_null())
-                    .col(ColumnDef::new(Projects::Description).string())
-                    .col(ColumnDef::new(Projects::CreatedBy).integer().not_null())
-                    .col(
-                        ColumnDef::new(Projects::EnforceCheckouts)
-                            .boolean()
-                            .default(false),
-                    )
-                    .foreign_key(
-                        ForeignKey::create()
-                            .name("FK_USER_PROJECT_CREATED_BY")
-                            .from(Projects::Table, Projects::CreatedBy)
-                            .to(Users::Table, Users::Id)
-                            .on_delete(ForeignKeyAction::Cascade),
-                    )
-                    .to_owned(),
-            )
-            .await?;
+                    .await?;
 
         manager
             .create_table(
@@ -185,6 +213,70 @@ impl MigrationTrait for Migration {
             manager
                 .create_table(
                     Table::create()
+                        .table(ProjectCommits::Table)
+                        .if_not_exists()
+                        .col(
+                            ColumnDef::new(ProjectCommits::Id)
+                                .integer()
+                                .not_null()
+                                .auto_increment()
+                                .primary_key(),
+                        )
+                        .col(ColumnDef::new(ProjectCommits::CommitId).integer().not_null())
+                        .col(ColumnDef::new(ProjectCommits::ProjectId).integer().not_null())
+                        .foreign_key(
+                            ForeignKey::create()
+                                .name("FK_PROJECT_COMMITS_PROJECT_ID")
+                                .from(ProjectCommits::Table, ProjectCommits::ProjectId)
+                                .to(Projects::Table, Projects::Id)
+                                .on_delete(ForeignKeyAction::Cascade),
+                        )
+                        .foreign_key(
+                            ForeignKey::create()
+                                .name("FK_PROJECT_COMMITS_COMMIT_ID")
+                                .from(ProjectCommits::Table, ProjectCommits::CommitId)
+                                .to(Commits::Table, Commits::Id)
+                                .on_delete(ForeignKeyAction::Cascade),
+                        )
+                        .to_owned(),
+            )
+            .await?;
+
+            manager
+                .create_table(
+                    Table::create()
+                        .table(CommitVersions::Table)
+                        .if_not_exists()
+                        .col(
+                            ColumnDef::new(CommitVersions::Id)
+                                .integer()
+                                .not_null()
+                                .auto_increment()
+                                .primary_key(),
+                        )
+                        .col(ColumnDef::new(CommitVersions::CommitId).integer().not_null())
+                        .col(ColumnDef::new(CommitVersions::VersionId).integer().not_null())
+                        .foreign_key(
+                            ForeignKey::create()
+                                .name("FK_COMMITS_VERSION_ID")
+                                .from(CommitVersions::Table, CommitVersions::VersionId)
+                                .to(Versions::Table, Versions::Id)
+                                .on_delete(ForeignKeyAction::Cascade),
+                        )
+                        .foreign_key(
+                            ForeignKey::create()
+                                .name("FK_COMMITS_COMMIT_ID")
+                                .from(CommitVersions::Table, CommitVersions::CommitId)
+                                .to(Commits::Table, Commits::Id)
+                                .on_delete(ForeignKeyAction::Cascade),
+                        )
+                        .to_owned(),
+            )
+            .await?;
+
+            manager
+                .create_table(
+                    Table::create()
                         .table(FileVersions::Table)
                         .if_not_exists()
                         .col(
@@ -227,6 +319,9 @@ impl MigrationTrait for Migration {
             .drop_table(Table::drop().table(FileVersions::Table).to_owned())
             .await?;
         manager
+            .drop_table(Table::drop().table(CommitVersions::Table).to_owned())
+            .await?;
+        manager
             .drop_table(Table::drop().table(Projects::Table).to_owned())
             .await?;
         manager
@@ -236,6 +331,9 @@ impl MigrationTrait for Migration {
             .drop_table(Table::drop().table(Versions::Table).to_owned())
             .await?;
         manager
+            .drop_table(Table::drop().table(Commits::Table).to_owned())
+            .await?;
+        manager
             .drop_table(Table::drop().table(Users::Table).to_owned())
             .await?;
 
@@ -243,7 +341,7 @@ impl MigrationTrait for Migration {
     }
 }
 
-/// Learn more at https://docs.rs/sea-query#iden
+/// User metadata - logins in auth0
 #[derive(Iden)]
 enum Users {
     Table,
@@ -252,6 +350,7 @@ enum Users {
     CreatedAt,
 }
 
+/// Mapping of Users to Projects
 #[derive(Iden)]
 enum UserProjects {
     Table,
@@ -260,6 +359,8 @@ enum UserProjects {
     ProjectId,
 }
 
+/// Projects - A collection of commits, which each contain versions which contain files.
+/// Also contains a list of files for easier lookup.
 #[derive(Iden)]
 enum Projects {
     Table,
@@ -270,6 +371,16 @@ enum Projects {
     CreatedBy,
 }
 
+/// A mapping if Projects to Commits
+#[derive(Iden)]
+enum ProjectCommits {
+    Table,
+    Id,
+    ProjectId,
+    CommitId,
+}
+
+/// A mapping of Projects to Files
 #[derive(Iden)]
 enum ProjectFiles {
     Table,
@@ -278,6 +389,51 @@ enum ProjectFiles {
     FileId,
 }
 
+/// A set of commits. Each commit contains a list of versions of files changed.
+#[derive(Iden)]
+enum Commits {
+    Table,
+    Id,
+    Description,
+    CreatedAt,
+    CreatedBy
+}
+
+/// A mapping of Commits to Versions of files
+#[derive(Iden)]
+enum CommitVersions {
+    Table,
+    Id,
+    CommitId,
+    VersionId,
+}
+
+
+/// A set of versions of files. Keyed differently than everything else, as they're keyed based on file hash.
+#[derive(Iden)]
+enum Versions {
+    Table,
+    Id,
+    /// Path to the object in object storage
+    ObjectPath,
+    VersionedAt,
+    VersionedBy,
+    VersionNumber,
+}
+
+
+/// A mapping of Versions to Files
+#[derive(Iden)]
+enum FileVersions {
+    Table,
+    Id,
+    FileId,
+    VersionId,
+}
+
+
+/// Individual files. Each file has multiple versions and through that belongs to many commits.
+/// Each file also belongs to a project.
 #[derive(Iden)]
 enum Files {
     Table,
@@ -290,20 +446,3 @@ enum Files {
     CheckedOutBy,
 }
 
-#[derive(Iden)]
-enum FileVersions {
-    Table,
-    Id,
-    FileId,
-    VersionId,
-}
-
-#[derive(Iden)]
-enum Versions {
-    Table,
-    Id,
-    ObjectPath,
-    VersionedAt,
-    VersionedBy,
-    VersionNumber,
-}
