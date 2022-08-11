@@ -2,23 +2,20 @@
 
 use rocket::fairing::{self, AdHoc};
 use rocket::{Build, Rocket};
-use serde_json::json;
+
 
 use migration::MigratorTrait;
-use sea_orm::{entity::*, query::*};
-use sea_orm_rocket::{Connection, Database};
+
+use sea_orm_rocket::Database;
 
 mod pool;
 mod jwt;
 use pool::Db;
 
-pub use entity::post;
-pub use entity::post::Entity as Post;
-
-use crate::jwt::User;
+use crate::jwt::UserClaim;
 
 #[get("/")]
-fn index(user: User) -> String {
+fn index(user: UserClaim) -> String {
     user.sub
 }
 
