@@ -10,7 +10,7 @@ pub struct Model {
     pub project_id: i32,
     pub description: Option<String>,
     pub created_by: i32,
-    pub created_at: DateTime,
+    pub created_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

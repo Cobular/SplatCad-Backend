@@ -19,7 +19,11 @@ impl MigrationTrait for Migration {
                             .primary_key(),
                     )
                     .col(ColumnDef::new(Users::Uid).string().not_null().unique_key())
-                    .col(ColumnDef::new(Users::CreatedAt).timestamp().not_null())
+                    .col(
+                        ColumnDef::new(Users::CreatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null(),
+                    )
                     .to_owned(),
             )
             .await?;
@@ -42,7 +46,8 @@ impl MigrationTrait for Migration {
                     .col(
                         ColumnDef::new(Projects::EnforceCheckouts)
                             .boolean()
-                            .default(false),
+                            .default(false)
+                            .not_null(),
                     )
                     .foreign_key(
                         ForeignKey::create()
@@ -70,7 +75,11 @@ impl MigrationTrait for Migration {
                     .col(ColumnDef::new(Commits::ProjectId).integer().not_null())
                     .col(ColumnDef::new(Commits::Description).string())
                     .col(ColumnDef::new(Commits::CreatedBy).integer().not_null())
-                    .col(ColumnDef::new(Commits::CreatedAt).timestamp().not_null())
+                    .col(
+                        ColumnDef::new(Commits::CreatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null(),
+                    )
                     .foreign_key(
                         ForeignKey::create()
                             .name("FK_COMMIT_CREATED_BY")
@@ -103,7 +112,11 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Files::Name).string().not_null())
                     .col(ColumnDef::new(Files::Type).string())
-                    .col(ColumnDef::new(Files::CreatedAt).timestamp().not_null())
+                    .col(
+                        ColumnDef::new(Files::CreatedAt)
+                            .timestamp_with_time_zone()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(Files::CreatedBy).integer().not_null())
                     .col(ColumnDef::new(Files::CheckedOutStatus).boolean().not_null())
                     .col(ColumnDef::new(Files::CheckedOutBy).integer().not_null())
@@ -147,7 +160,11 @@ impl MigrationTrait for Migration {
                     )
                     .col(ColumnDef::new(Versions::ObjectPath).string().not_null())
                     .col(ColumnDef::new(Versions::VersionNumber).integer().not_null())
-                    .col(ColumnDef::new(Versions::VersionedAt).timestamp().not_null())
+                    .col(
+                        ColumnDef::new(Versions::VersionedAt)
+                            .timestamp_with_time_zone()
+                            .not_null(),
+                    )
                     .col(ColumnDef::new(Versions::VersionedBy).integer().not_null())
                     .col(ColumnDef::new(Versions::CommitId).integer().not_null())
                     .col(ColumnDef::new(Versions::FileId).integer().not_null())
@@ -214,10 +231,10 @@ impl MigrationTrait for Migration {
             .drop_table(Table::drop().table(UserProjects::Table).to_owned())
             .await?;
         manager
-            .drop_table(Table::drop().table(Files::Table).to_owned())
+            .drop_table(Table::drop().table(Versions::Table).to_owned())
             .await?;
         manager
-            .drop_table(Table::drop().table(Versions::Table).to_owned())
+            .drop_table(Table::drop().table(Files::Table).to_owned())
             .await?;
         manager
             .drop_table(Table::drop().table(Commits::Table).to_owned())

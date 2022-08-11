@@ -9,7 +9,7 @@ pub struct Model {
     pub id: i32,
     pub object_path: String,
     pub version_number: i32,
-    pub versioned_at: DateTime,
+    pub versioned_at: DateTimeWithTimeZone,
     pub versioned_by: i32,
     pub commit_id: i32,
     pub file_id: i32,

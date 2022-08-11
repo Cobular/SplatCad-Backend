@@ -9,7 +9,7 @@ pub struct Model {
     pub id: i32,
     pub name: String,
     pub r#type: Option<String>,
-    pub created_at: DateTime,
+    pub created_at: DateTimeWithTimeZone,
     pub created_by: i32,
     pub checked_out_status: bool,
     pub checked_out_by: i32,

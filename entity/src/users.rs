@@ -9,31 +9,19 @@ pub struct Model {
     pub id: i32,
     #[sea_orm(unique)]
     pub uid: String,
-    pub created_at: DateTime,
+    pub created_at: DateTimeWithTimeZone,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-    #[sea_orm(has_many = "super::projects::Entity")]
-    Projects,
-    #[sea_orm(has_many = "super::user_projects::Entity")]
-    UserProjects,
     #[sea_orm(has_many = "super::commits::Entity")]
     Commits,
     #[sea_orm(has_many = "super::versions::Entity")]
     Versions,
-}
-
-impl Related<super::projects::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Projects.def()
-    }
-}
-
-impl Related<super::user_projects::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::UserProjects.def()
-    }
+    #[sea_orm(has_many = "super::projects::Entity")]
+    Projects,
+    #[sea_orm(has_many = "super::user_projects::Entity")]
+    UserProjects,
 }
 
 impl Related<super::commits::Entity> for Entity {
@@ -45,6 +33,18 @@ impl Related<super::commits::Entity> for Entity {
 impl Related<super::versions::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Versions.def()
+    }
+}
+
+impl Related<super::projects::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Projects.def()
+    }
+}
+
+impl Related<super::user_projects::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::UserProjects.def()
     }
 }
 
