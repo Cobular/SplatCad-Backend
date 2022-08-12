@@ -1,5 +1,5 @@
 use crate::{guards::jwt::User, pool::Db};
-use entity::{files, projects};
+use entity::{files, projects, commits, versions};
 use migration::JoinType;
 use rocket::{http::Status, response::status, serde::json::Json};
 use sea_orm::{
@@ -56,10 +56,10 @@ pub async fn create(
                 ));
             }
         }
-        Err(_) => {
+        Err(err) => {
             return Err(status::Custom(
                 Status::InternalServerError,
-                "Could not create project".to_string(),
+                format!("{:?}", err),
             ))
         }
     };
@@ -135,12 +135,12 @@ pub async fn get_commits_for_project(
     conn: Connection<Db, '_>,
     user: User,
     project_id: i32,
-) -> Result<Json<Vec<files::Model>>, status::Custom<String>> {
+) -> Result<Json<Vec<commits::Model>>, status::Custom<String>> {
     let conn = conn.into_inner();
-    match files::Entity::find()
-        .join(JoinType::LeftJoin, files::Relation::Projects.def())
+    match commits::Entity::find()
+        .join(JoinType::LeftJoin, commits::Relation::Projects.def())
         .filter(projects::Column::CreatedBy.eq(user.id))
-        .filter(files::Column::ProjectId.eq(project_id))
+        .filter(commits::Column::ProjectId.eq(project_id))
         .all(conn)
         .await
     {
@@ -151,3 +151,28 @@ pub async fn get_commits_for_project(
         )),
     }
 }
+
+
+#[get("/<project_id>/versions")]
+pub async fn get_versions_for_project(
+    conn: Connection<Db, '_>,
+    user: User,
+    project_id: i32,
+) -> Result<Json<Vec<versions::Model>>, status::Custom<String>> {
+    let conn = conn.into_inner();
+    match versions::Entity::find()
+        .join(JoinType::LeftJoin, versions::Relation::Files.def())
+        .join(JoinType::LeftJoin, files::Relation::Projects.def())
+        .filter(files::Column::ProjectId.eq(project_id))
+        .filter(projects::Column::CreatedBy.eq(user.id))
+        .all(conn)
+        .await
+    {
+        Ok(model) => Ok(rocket::serde::json::Json(model)),
+        _ => Err(status::Custom(
+            Status::InternalServerError,
+            "Could not find project".to_string(),
+        )),
+    }
+}
+
