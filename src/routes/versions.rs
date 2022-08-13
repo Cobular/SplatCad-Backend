@@ -9,4 +9,4 @@
 // UploadId system
 // After all metadata is stored, create an upload id for the file
 // Use this as a url param to upload the file with streaming to something like S3
-// UploadId is a UUID
+// UploadId is a UUID   
