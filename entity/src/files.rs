@@ -8,14 +8,14 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "files")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub file_type: Option<String>,
     pub created_at: DateTimeWithTimeZone,
-    pub created_by: i32,
+    pub created_by: i64,
     pub checked_out_status: bool,
-    pub checked_out_by: Option<i32>,
-    pub project_id: i32,
+    pub checked_out_by: Option<i64>,
+    pub project_id: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

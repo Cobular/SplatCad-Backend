@@ -8,13 +8,13 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "versions")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: i32,
+    pub id: i64,
     pub object_path: String,
-    pub version_number: i32,
+    pub version_number: i64,
     pub versioned_at: DateTimeWithTimeZone,
-    pub versioned_by: i32,
-    pub commit_id: i32,
-    pub file_id: i32,
+    pub versioned_by: i64,
+    pub commit_id: i64,
+    pub file_id: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -10,13 +10,13 @@ use sea_orm_rocket::Connection;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct MiniModel {
+pub struct CreateProjectModel {
     pub name: String,
     pub description: Option<String>,
     pub enforce_checkouts: Option<bool>,
 }
 
-impl MiniModel {
+impl CreateProjectModel {
     pub fn into_model(self, user: User) -> projects::ActiveModel {
         let desc = match self.description {
             Some(desc) => ActiveValue::set(Some(desc)),
@@ -27,7 +27,7 @@ impl MiniModel {
             name: ActiveValue::Set(self.name),
             description: desc,
             enforce_checkouts: ActiveValue::Set(self.enforce_checkouts.unwrap_or(false)),
-            created_by: ActiveValue::Set(user.id),
+            created_by: ActiveValue::Set(user.id.into()),
             ..Default::default()
         }
     }
@@ -37,7 +37,7 @@ impl MiniModel {
 pub async fn create(
     conn: Connection<Db, '_>,
     user: User,
-    project: Json<MiniModel>,
+    project: Json<CreateProjectModel>,
 ) -> Result<Json<projects::Model>, status::Custom<String>> {
     let conn = conn.into_inner();
 
@@ -77,7 +77,7 @@ pub async fn create(
 pub async fn read_one(
     conn: Connection<Db, '_>,
     _user: User,
-    id: i32,
+    id: i64,
 ) -> Result<Json<projects::Model>, status::Custom<String>> {
     let conn = conn.into_inner();
     match projects::Entity::find_by_id(id).one(conn).await {

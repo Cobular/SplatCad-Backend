@@ -9,7 +9,6 @@ pub struct Migration;
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         let db = manager.get_connection();
-        let txn = db.begin().await?;
 
         println!("Seeding Users");
         // Create Users
@@ -17,12 +16,12 @@ impl MigrationTrait for Migration {
             uid: Set("admin".to_string()),
             created_at: Set(chrono::Utc::now().into()),
             id: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         users::ActiveModel {
             uid: Set("user".to_string()),
             created_at: Set(chrono::Utc::now().into()),
             id: Set(2)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
 
         println!("Seeding Projects");
         // Create Projects
@@ -32,14 +31,14 @@ impl MigrationTrait for Migration {
             created_by: Set(1),
             enforce_checkouts: Set(true),
             id: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         projects::ActiveModel {
             name: Set("project1-user".to_string()),
             description: Set(Some("description1".to_string())),
             created_by: Set(2),
             enforce_checkouts: Set(false),
             id: Set(2)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
 
         println!("Seeding Commits");
         // Create some commits for those projects
@@ -51,7 +50,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             description: Set(Some("commit1".to_string())),
             commit_number: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         commits::ActiveModel {
             id: Set(2),
             project_id: Set(1),
@@ -59,7 +58,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             description: Set(Some("commit2".to_string())),
             commit_number: Set(2)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         // Project 2
         commits::ActiveModel {
             id: Set(3),
@@ -68,7 +67,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             description: Set(Some("commit3".to_string())),
             commit_number: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         commits::ActiveModel {
             id: Set(4),
             project_id: Set(2),
@@ -76,7 +75,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             description: Set(Some("commit4".to_string())),
             commit_number: Set(2)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
 
         println!("Seeding Files");
         // Create some files for those projects
@@ -90,7 +89,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             checked_out_status: Set(false),
             file_type: Set(Some("stl".to_string())),
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         files::ActiveModel {
             id: Set(2),
             project_id: Set(1),
@@ -100,7 +99,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             checked_out_status: Set(true),
             file_type: Set(Some("step".to_string())),
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         files::ActiveModel {
             id: Set(3),
             project_id: Set(1),
@@ -110,7 +109,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             checked_out_status: Set(false),
             file_type: Set(Some("jpg".to_string())),
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         // Project2
         files::ActiveModel {
             id: Set(4),
@@ -121,7 +120,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             checked_out_status: Set(false),
             file_type: Set(Some("stl".to_string())),
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         files::ActiveModel {
             id: Set(5),
             project_id: Set(2),
@@ -131,7 +130,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             checked_out_status: Set(true),
             file_type: Set(Some("step".to_string())),
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         files::ActiveModel {
             id: Set(6),
             project_id: Set(2),
@@ -141,7 +140,7 @@ impl MigrationTrait for Migration {
             created_at: Set(chrono::Utc::now().into()),
             checked_out_status: Set(false),
             file_type: Set(Some("jpg".to_string())),
-        }.insert(&txn).await?;
+        }.insert(db).await?;
 
         println!("Seeding Versions");
         // Create some versions associated to the files
@@ -155,7 +154,7 @@ impl MigrationTrait for Migration {
             versioned_by: Set(1),
             commit_id: Set(1),
             version_number: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         versions::ActiveModel {
             id: Set(2),
             file_id: Set(2),
@@ -164,7 +163,7 @@ impl MigrationTrait for Migration {
             versioned_by: Set(1),
             commit_id: Set(1),
             version_number: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         //  Commit 2
         versions::ActiveModel {
             id: Set(3),
@@ -174,7 +173,7 @@ impl MigrationTrait for Migration {
             versioned_by: Set(1),
             commit_id: Set(2),
             version_number: Set(2)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         versions::ActiveModel {
             id: Set(4),
             file_id: Set(3),
@@ -183,7 +182,7 @@ impl MigrationTrait for Migration {
             versioned_by: Set(1),
             commit_id: Set(2),
             version_number: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         // Project 2
         //  Commit 1
         versions::ActiveModel {
@@ -194,7 +193,7 @@ impl MigrationTrait for Migration {
             versioned_by: Set(2),
             commit_id: Set(3),
             version_number: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         versions::ActiveModel {
             id: Set(6),
             file_id: Set(5),
@@ -203,7 +202,7 @@ impl MigrationTrait for Migration {
             versioned_by: Set(2),
             commit_id: Set(3),
             version_number: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         //  Commit 2
         versions::ActiveModel {
             id: Set(7),
@@ -213,7 +212,7 @@ impl MigrationTrait for Migration {
             versioned_by: Set(2),
             commit_id: Set(4),
             version_number: Set(2)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
         versions::ActiveModel {
             id: Set(8),
             file_id: Set(6),
@@ -222,11 +221,9 @@ impl MigrationTrait for Migration {
             versioned_by: Set(2),
             commit_id: Set(4),
             version_number: Set(1)
-        }.insert(&txn).await?;
+        }.insert(db).await?;
 
         
-        txn.commit().await?;
-
         Ok(())
     }
 

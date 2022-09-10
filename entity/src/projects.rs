@@ -8,10 +8,10 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "projects")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: i32,
+    pub id: i64,
     pub name: String,
     pub description: Option<String>,
-    pub created_by: i32,
+    pub created_by: i64,
     pub enforce_checkouts: bool,
 }
 

@@ -8,12 +8,12 @@ use sea_orm::entity::prelude::*;
 #[sea_orm(table_name = "commits")]
 pub struct Model {
     #[sea_orm(primary_key)]
-    pub id: i32,
-    pub project_id: i32,
+    pub id: i64,
+    pub project_id: i64,
     pub description: Option<String>,
-    pub created_by: i32,
+    pub created_by: i64,
     pub created_at: DateTimeWithTimeZone,
-    pub commit_number: i32,
+    pub commit_number: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

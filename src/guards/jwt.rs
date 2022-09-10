@@ -99,7 +99,7 @@ impl<'r> FromRequest<'r> for User {
 
         Outcome::Success(User {
             sub: _token_data.claims.sub,
-            id,
+            id: id.try_into().unwrap(),
         })
     }
 }
